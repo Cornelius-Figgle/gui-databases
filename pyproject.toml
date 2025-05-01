@@ -2,24 +2,13 @@
 name = "gui-databases"
 version = "0.1.0"
 description = "Project for my college course"
-authors = [
-    {
-        name = "Cornelius-Figgle",
-        email = "max@fullimage.net"
-    }
-]
-license = {
-    text = "MIT"
-}
+authors = [ { name = "Cornelius-Figgle", email = "max@fullimage.net" } ]
+license = { text = "MIT" }
 readme = "README.md"
-requires-python = "3.10"
-dependencies = [
-    "pyqt6 (>=6.9.0,<7.0.0)"
-]
+requires-python = "^3.10"
+dependencies = [ "pyqt6 (>=6.9.0,<7.0.0)" ]
 
 
 [build-system]
-requires = [
-    "poetry-core>=2.0.0,<3.0.0"
-]
+requires = [ "poetry-core>=2.0.0,<3.0.0" ]
 build-backend = "poetry.core.masonry.api"
