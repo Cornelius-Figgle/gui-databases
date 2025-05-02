@@ -4,7 +4,7 @@
 
 ## General
 
-...
+- [ ] Credential hashing
 
 ## Assignment requirements
 

@@ -29,8 +29,10 @@ from PyQt6.QtWidgets import (
     QPushButton
 )
 
+from backend import Backend
 
-class GUI_Interface(QMainWindow):
+
+class Frontend(QMainWindow):
     '''
     Handles the interface to the database.
     '''
@@ -43,7 +45,10 @@ class GUI_Interface(QMainWindow):
 
         # initialises from QMainWindow
         super().__init__()
-        
+
+        # initalise the backend
+        self.BackendObj = Backend(self)
+       
         # stores the QApplication object for later use
         self.AppObj = _AppObj
 
@@ -72,15 +77,6 @@ class GUI_Interface(QMainWindow):
 
         return
 
-    def draw_screen(self) -> None:
-        '''
-            
-        '''
-
-        ...
-
-        return
-
     def login(self) -> None:
         '''
         Processes the login event.
@@ -97,26 +93,26 @@ class GUI_Interface(QMainWindow):
         widget_dict['cred_grid_widget'] = QWidget()
         widget_dict['cred_grid_layout'] = QGridLayout()
         
-        widget_dict['username_label'] = QLabel('Username: ')
-        widget_dict['username_input'] = QLineEdit()
-        widget_dict['password_label'] = QLabel('Password: ')
-        widget_dict['password_input'] = QLineEdit()
-        widget_dict['password_input'].setEchoMode(QLineEdit.EchoMode.Password)
+        widget_dict['usr_label'] = QLabel('Username: ')
+        widget_dict['usr_input'] = QLineEdit()
+        widget_dict['passwd_label'] = QLabel('Password: ')
+        widget_dict['passwd_input'] = QLineEdit()
+        widget_dict['passwd_input'].setEchoMode(QLineEdit.EchoMode.Password)
         
         widget_dict['cred_grid_layout'].addWidget(
-            widget_dict['username_label'],
+            widget_dict['usr_label'],
             0, 0
         )
         widget_dict['cred_grid_layout'].addWidget(
-            widget_dict['username_input'],
+            widget_dict['usr_input'],
             0, 1
         )
         widget_dict['cred_grid_layout'].addWidget(
-            widget_dict['password_label'],
+            widget_dict['passwd_label'],
             1, 0
         )
         widget_dict['cred_grid_layout'].addWidget(
-            widget_dict['password_input'],
+            widget_dict['passwd_input'],
             1, 1
         )
         
@@ -126,27 +122,35 @@ class GUI_Interface(QMainWindow):
 
         self.layout_current.addWidget(widget_dict['cred_grid_widget'], 1, 0)
 
-        # hbox to buffer the button to the right
-        widget_dict['confirm_hbox_widget'] = QWidget()
-        widget_dict['confirm_hbox_layout'] = QHBoxLayout()
+        # hbox to buffer the submit button to the right
+        widget_dict['submit_hbox_widget'] = QWidget()
+        widget_dict['submit_hbox_layout'] = QHBoxLayout()
 
-        widget_dict['confirm_hbox_layout'].addWidget(
+        widget_dict['submit_hbox_layout'].addWidget(
             QWidget()
         )
-        widget_dict['confirm_hbox_layout'].addWidget(
+        widget_dict['submit_hbox_layout'].addWidget(
             QWidget()
         )
 
-        widget_dict['confirm_button'] = QPushButton('Login')
-        widget_dict['confirm_hbox_layout'].addWidget(
-            widget_dict['confirm_button']
+        widget_dict['submit_button'] = QPushButton('Login')
+        widget_dict['submit_button'].clicked.connect(
+            lambda event: self.BackendObj.check_creds(
+                creds={
+                    'usr': widget_dict['usr_input'].text().lower(),
+                    'passwd': widget_dict['passwd_input'].text()
+                }
+            )
+        )
+        widget_dict['submit_hbox_layout'].addWidget(
+            widget_dict['submit_button']
         )
 
-        widget_dict['confirm_hbox_widget'].setLayout(
-            widget_dict['confirm_hbox_layout']
+        widget_dict['submit_hbox_widget'].setLayout(
+            widget_dict['submit_hbox_layout']
         )
         
-        self.layout_current.addWidget(widget_dict['confirm_hbox_widget'], 2, 0)
+        self.layout_current.addWidget(widget_dict['submit_hbox_widget'], 2, 0)
 
         # set the layout
         self.layout_widget.setLayout(self.layout_current)
@@ -161,7 +165,7 @@ def main() -> None:
 
     # creates the window
     AppObj = QApplication([])
-    WindowObj = GUI_Interface(AppObj)
+    WindowObj = Frontend(AppObj)
     WindowObj.show()
 
     # hands control of the program flow over to Qt

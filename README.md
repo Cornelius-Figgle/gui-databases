@@ -26,7 +26,7 @@ poetry install
 ## Usage
 
 ```shell
-poetry run python3 gui_databases/main.py
+poetry run python3 gui_databases/frontend.py
 ```
 
 ### Troubleshooting
@@ -34,7 +34,7 @@ poetry run python3 gui_databases/main.py
 If you receive a `ModuleNotFound` error when running (mainly occurs on Windows), then switch `python3` for `python`:
 
 ```shell
-poetry run python gui_databases/main.py
+poetry run python gui_databases/frontend.py
 ```
 
 ## External Libraries Used
@@ -46,6 +46,9 @@ poetry run python gui_databases/main.py
 
 - [PythonGUIs PyQt6 Basic Tutorial](https://www.pythonguis.com/pyqt6-tutorial/)
 - [Python Type Hints Specification](https://docs.python.org/3/library/typing.html)
+- My own previous projects:
+  - [Login Feature Project](https://github.com/Cornelius-Figgle/login-project/)
+  - [Noughts & Crosses Project (PyQt6)](https://github.com/Cornelius-Figgle/noughts-crosses-qt6/)
 
 ## License
 
