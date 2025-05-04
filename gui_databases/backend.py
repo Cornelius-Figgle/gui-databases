@@ -50,14 +50,39 @@ class Backend:
         Checks whether or not the supplied credentials are valid.
         '''
 
-        if creds not in self.usrcreds:
-            ...  # error
+        for user in self.usrcreds:
+            # check if credentials are valid
+            if user['usr'] == creds['usr']:
+                # check if password is valid for that username
+                if user['passwd'] == creds['passwd']:
+                    # login successful, so display data entry screen
+                    print(f'Login as user `{creds["usr"]}` successful!')
+                    self.active_user = creds['usr']
+                    self.FrontendObj.data_entry()
+                    
+                    break
+                else:
+                    # log error to stdout
+                    print('Login attempt unsuccessful: invalid '+
+                        f'password for user `{creds["usr"]}`.')
 
-            return
+                    # inform the user of the error
+                    self.FrontendObj.raise_error(
+                        'Invalid credentials',
+                        'The provided password is incorrect, please '+
+                            'try again'
+                    )
 
-        # login successful, so display data entry screen
-        print(f'Login as `{creds["usr"]}` successful!')
-        self.creds = creds
-        self.FrontendObj.data_entry()
+                    break
+        else:
+            # log error to stdout
+            print('Login attempt unsuccessful: invalid username '
+                  +f'`{creds["usr"]}`.')
+
+            # inform the user of the error
+            self.FrontendObj.raise_error(
+                'Invalid credentials',
+                'The provided username is invalid, please try again'
+            )
 
         return

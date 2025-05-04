@@ -4,10 +4,11 @@
 
 ## General
 
-- [ ] Credential hashing
+- [x] Credential hashing
+- [ ] User management
 
 ## Assignment requirements
 
-- [ ] Create login form/function
+- [x] Create login form/function
 - [ ] Create data entry form
 - [ ] Create the database

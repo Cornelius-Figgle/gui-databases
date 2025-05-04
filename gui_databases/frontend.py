@@ -17,7 +17,9 @@ __credits__ = ['Max Harrison']
 
 
 import sys
+from hashlib import sha256
 
+from PyQt6 import sip
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -26,7 +28,8 @@ from PyQt6.QtWidgets import (
     QLabel, 
     QLineEdit,
     QHBoxLayout,
-    QPushButton
+    QPushButton,
+    QMessageBox
 )
 
 from backend import Backend
@@ -77,9 +80,32 @@ class Frontend(QMainWindow):
 
         return
 
+    def clear_screen(self) -> None:
+        '''
+        Clears the layout to allow new widgets to be added.
+        '''
+
+        # a widget is deleted when its parent is deleted
+        # thus we iterate over the layout and remove widgets' parents
+        # in reverse order so the order of the widgets doesn't change
+        for i in reversed(range(self.layout_current.count())): 
+            self.layout_current.itemAt(i).widget().setParent(None)
+       
+        return
+        
+    def raise_error(self, title: str, content: str) -> None:
+        '''
+        Informs the user of an error, usually used in conjunction with
+        input validation.
+        '''
+
+        QMessageBox.warning(self, title, content)
+
+        return
+
     def login(self) -> None:
         '''
-        Processes the login event.
+        Handles the login window.
         '''
 
         # stores all the widgets for this screen
@@ -138,7 +164,9 @@ class Frontend(QMainWindow):
             lambda event: self.BackendObj.check_creds(
                 creds={
                     'usr': widget_dict['usr_input'].text().lower(),
-                    'passwd': widget_dict['passwd_input'].text()
+                    'passwd': sha256(
+                        widget_dict['passwd_input'].text().encode()
+                    ).hexdigest()
                 }
             )
         )
@@ -151,6 +179,28 @@ class Frontend(QMainWindow):
         )
         
         self.layout_current.addWidget(widget_dict['submit_hbox_widget'], 2, 0)
+
+        # set the layout
+        self.layout_widget.setLayout(self.layout_current)
+
+        return
+
+    def data_entry(self) -> None:
+        '''
+        Handles the main content window.
+        '''
+
+        # reinitialise the layout
+        self.clear_screen()
+        
+        # stores all the widgets for this screen
+        widget_dict = dict()
+
+        # creates a title and adds it to the window's layout
+        widget_dict['title_text'] = QLabel(
+            f'<h1>Database Manager for {self.BackendObj.active_user}</h1>'
+        )
+        self.layout_current.addWidget(widget_dict['title_text'], 0, 0)
 
         # set the layout
         self.layout_widget.setLayout(self.layout_current)
