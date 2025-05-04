@@ -1,2 +1,3 @@
 __pycache__/
 poetry.toml
+gui_databases/usrcreds.json

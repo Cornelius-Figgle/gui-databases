@@ -29,6 +29,8 @@ poetry install
 poetry run python3 gui_databases/frontend.py
 ```
 
+On first run, the program should create a default user (username: `admin`, password: `admin`) for you.
+
 ### Troubleshooting
 
 If you receive a `ModuleNotFound` error when running (mainly occurs on Windows), then switch `python3` for `python`:

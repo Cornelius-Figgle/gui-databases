@@ -198,7 +198,8 @@ class Frontend(QMainWindow):
 
         # creates a title and adds it to the window's layout
         widget_dict['title_text'] = QLabel(
-            f'<h1>Database Manager for {self.BackendObj.active_user}</h1>'
+            '<h1>Database Manager for'
+            +f' {self.BackendObj.active_user["name"]}</h1>'
         )
         self.layout_current.addWidget(widget_dict['title_text'], 0, 0)
 

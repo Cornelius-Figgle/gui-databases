@@ -18,6 +18,7 @@ __credits__ = ['Max Harrison']
 
 import json
 import os
+from hashlib import sha256
 
 
 class Backend:
@@ -27,7 +28,7 @@ class Backend:
 
     def __init__(self, _FrontendObj: type['FrontendObj']) -> None:
         '''
-            
+        
         '''
 
         # create object for the interface
@@ -38,7 +39,24 @@ class Backend:
             os.path.dirname(__file__),
             'usrcreds.json'
         )
+        
+        # create default credfile if not present
+        if not os.path.exists(self.credfile):
+            with open(self.credfile, 'w') as file:
+                print('File `usrcreds.json` does not exist, creating now.')
 
+                # default credentials
+                default_creds = [
+                    {
+                        'usr': 'admin',
+                        'passwd': sha256('admin'.encode()).hexdigest(),
+                        'name': 'Default Admin'
+                    }
+                ]
+
+                # writes the defaults to the credfile
+                json.dump(default_creds, file)
+        
         # loads credentials from the file
         with open(self.credfile, 'r') as file:
             self.usrcreds = json.load(file)
@@ -57,7 +75,7 @@ class Backend:
                 if user['passwd'] == creds['passwd']:
                     # login successful, so display data entry screen
                     print(f'Login as user `{creds["usr"]}` successful!')
-                    self.active_user = creds['usr']
+                    self.active_user = user
                     self.FrontendObj.data_entry()
                     
                     break
