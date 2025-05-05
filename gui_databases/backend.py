@@ -81,14 +81,13 @@ class Backend:
                     break
                 else:
                     # log error to stdout
-                    print('Login attempt unsuccessful: invalid '+
-                        f'password for user `{creds["usr"]}`.')
+                    print('Login attempt unsuccessful: invalid password for'
+                          +f'user `{creds["usr"]}`.')
 
                     # inform the user of the error
                     self.FrontendObj.raise_error(
                         'Invalid credentials',
-                        'The provided password is incorrect, please '+
-                            'try again'
+                        'The provided password is incorrect, please try again'
                     )
 
                     break

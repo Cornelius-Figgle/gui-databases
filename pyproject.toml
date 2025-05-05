@@ -6,7 +6,7 @@ authors = [ { name = "Cornelius-Figgle", email = "max@fullimage.net" } ]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = "^3.10"
-dependencies = [ "pyqt6 (>=6.9.0,<7.0.0)" ]
+dependencies = [ "pyqt6 (>=6.9.0,<7.0.0)", "qtawesome (>=1.4.0,<2.0.0)" ]
 
 
 [build-system]

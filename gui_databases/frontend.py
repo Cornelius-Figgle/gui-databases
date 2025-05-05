@@ -19,7 +19,8 @@ __credits__ = ['Max Harrison']
 import sys
 from hashlib import sha256
 
-from PyQt6 import sip
+import qtawesome as qta
+from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -29,7 +30,10 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QHBoxLayout,
     QPushButton,
-    QMessageBox
+    QMessageBox,
+    QToolBar,
+    QStatusBar,
+    QMenuBar
 )
 
 from backend import Backend
@@ -56,7 +60,7 @@ class Frontend(QMainWindow):
         self.AppObj = _AppObj
 
         # sets title
-        self.setWindowTitle('GUI Databases')
+        self.setWindowTitle('Database Manager')
         
         # creates a widget to hold our layout
         self.layout_widget = QWidget()
@@ -196,11 +200,65 @@ class Frontend(QMainWindow):
         # stores all the widgets for this screen
         widget_dict = dict()
 
-        # creates a title and adds it to the window's layout
-        widget_dict['title_text'] = QLabel(
-            '<h1>Database Manager for'
-            +f' {self.BackendObj.active_user["name"]}</h1>'
+        # main menu
+        widget_dict['menu'] = self.menuBar()
+        
+        widget_dict['menu_file'] = widget_dict['menu'].addMenu('&File')
+        
+        widget_dict['menu_file_new'] = QAction(
+            qta.icon('ei.file-new'),
+            '&New',
+            self
         )
+        widget_dict['menu_file_new'].setStatusTip('Create a new database')
+        widget_dict['menu_file'].addAction(widget_dict['menu_file_new'])
+
+        widget_dict['menu_file_open'] = QAction(
+            qta.icon('ei.file-edit'),
+            '&Open',
+            self
+        )
+        widget_dict['menu_file_open'].setStatusTip('Open an existing database')
+        widget_dict['menu_file'].addAction(widget_dict['menu_file_open'])
+
+        widget_dict['menu_database'] = widget_dict['menu'].addMenu('&Database')
+
+        # corner menu
+        widget_dict['corner_bar'] = QMenuBar()
+        widget_dict['corner_menu'] = widget_dict['corner_bar'].addMenu(
+            qta.icon('mdi.menu'),
+            str()
+        )
+        
+        widget_dict['corner_menu_options'] = QAction(
+            qta.icon('mdi.cog'),
+            '&Options',
+            self
+        )
+        widget_dict['corner_menu_options'].setStatusTip('Open the options menu')
+        widget_dict['corner_menu'].addAction(widget_dict['corner_menu_options'])
+        
+        widget_dict['corner_menu_logout'] = QAction(
+            qta.icon('mdi.account-arrow-right'),
+            '&Log Out',
+            self
+        )
+        widget_dict['corner_menu_logout'].setStatusTip('Log out of session')
+        widget_dict['corner_menu'].addAction(widget_dict['corner_menu_logout'])
+        
+        widget_dict['menu'].setCornerWidget(widget_dict['corner_bar'])
+
+        # status bar
+        widget_dict['statusbar'] = QStatusBar(self)
+        self.setStatusBar(widget_dict['statusbar'])
+        widget_dict['statusbar'].showMessage(
+            'Successfully logged in as '
+                +f'"{self.BackendObj.active_user["usr"]}"',
+            3000
+        ) 
+        
+        # creates a title and adds it to the window's layout
+        widget_dict['title_text'] = QLabel('<h1>Database Manager</h1>')
         self.layout_current.addWidget(widget_dict['title_text'], 0, 0)
 
         # set the layout
