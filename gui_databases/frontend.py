@@ -20,6 +20,7 @@ import sys
 from hashlib import sha256
 
 import qtawesome as qta
+from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QApplication,
@@ -29,11 +30,11 @@ from PyQt6.QtWidgets import (
     QLabel, 
     QLineEdit,
     QHBoxLayout,
+    QVBoxLayout,
     QPushButton,
     QMessageBox,
-    QToolBar,
     QStatusBar,
-    QMenuBar
+    QToolBar
 )
 
 from backend import Backend
@@ -60,7 +61,7 @@ class Frontend(QMainWindow):
         self.AppObj = _AppObj
 
         # sets title
-        self.setWindowTitle('Database Manager')
+        self.setWindowTitle('Account Manager')
         
         # creates a widget to hold our layout
         self.layout_widget = QWidget()
@@ -69,6 +70,9 @@ class Frontend(QMainWindow):
         # creates a layout to hold our widgets
         self.layout_current = QGridLayout()
         self.layout_widget.setLayout(self.layout_current)
+
+        # create blank toolbar dict
+        self.toolbar_dict = dict()
 
         # start the login process
         self.login()
@@ -94,7 +98,11 @@ class Frontend(QMainWindow):
         # in reverse order so the order of the widgets doesn't change
         for i in reversed(range(self.layout_current.count())): 
             self.layout_current.itemAt(i).widget().setParent(None)
-       
+
+        # remove toolbar
+        for widget in self.toolbar_dict:
+            self.toolbar_dict[widget].setParent(None)
+
         return
         
     def raise_error(self, title: str, content: str) -> None:
@@ -111,6 +119,9 @@ class Frontend(QMainWindow):
         '''
         Handles the login window.
         '''
+        
+        # reinitialise the layout
+        self.clear_screen()
 
         # stores all the widgets for this screen
         widget_dict = dict()
@@ -189,7 +200,7 @@ class Frontend(QMainWindow):
 
         return
 
-    def data_entry(self) -> None:
+    def main_menu(self) -> None:
         '''
         Handles the main content window.
         '''
@@ -200,54 +211,46 @@ class Frontend(QMainWindow):
         # stores all the widgets for this screen
         widget_dict = dict()
 
-        # main menu
-        widget_dict['menu'] = self.menuBar()
-        
-        widget_dict['menu_file'] = widget_dict['menu'].addMenu('&File')
-        
-        widget_dict['menu_file_new'] = QAction(
-            qta.icon('ei.file-new'),
-            '&New',
+        # main toolbar
+        self.toolbar_dict['main'] = QToolBar('Main toolbar')
+        self.toolbar_dict['main'].setIconSize(QSize(16, 16))
+        self.toolbar_dict['main'].setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+        )
+        self.toolbar_dict['main'].setFloatable(True)
+        self.addToolBar(self.toolbar_dict['main'])
+
+        # create new account
+        self.toolbar_dict['add'] = QAction(
+            qta.icon('mdi.account-plus'),
+            '&Add User',
             self
         )
-        widget_dict['menu_file_new'].setStatusTip('Create a new database')
-        widget_dict['menu_file'].addAction(widget_dict['menu_file_new'])
+        self.toolbar_dict['add'].setStatusTip('Create a new user')
+        self.toolbar_dict['main'].addAction(self.toolbar_dict['add'])
 
-        widget_dict['menu_file_open'] = QAction(
-            qta.icon('ei.file-edit'),
-            '&Open',
-            self
-        )
-        widget_dict['menu_file_open'].setStatusTip('Open an existing database')
-        widget_dict['menu_file'].addAction(widget_dict['menu_file_open'])
+        self.toolbar_dict['main'].addSeparator()
 
-        widget_dict['menu_database'] = widget_dict['menu'].addMenu('&Database')
-
-        # corner menu
-        widget_dict['corner_bar'] = QMenuBar()
-        widget_dict['corner_menu'] = widget_dict['corner_bar'].addMenu(
-            qta.icon('mdi.menu'),
-            str()
-        )
-        
-        widget_dict['corner_menu_options'] = QAction(
-            qta.icon('mdi.cog'),
-            '&Options',
-            self
-        )
-        widget_dict['corner_menu_options'].setStatusTip('Open the options menu')
-        widget_dict['corner_menu'].addAction(widget_dict['corner_menu_options'])
-        
-        widget_dict['corner_menu_logout'] = QAction(
+        # return to login screen
+        self.toolbar_dict['logout'] = QAction(
             qta.icon('mdi.account-arrow-right'),
-            '&Log Out',
+            '&Logout',
             self
         )
-        widget_dict['corner_menu_logout'].setStatusTip('Log out of session')
-        widget_dict['corner_menu'].addAction(widget_dict['corner_menu_logout'])
-        
-        widget_dict['menu'].setCornerWidget(widget_dict['corner_bar'])
+        self.toolbar_dict['logout'].setStatusTip('Return to login screen')
+        self.toolbar_dict['logout'].triggered.connect(self.login)
+        self.toolbar_dict['main'].addAction(self.toolbar_dict['logout'])
 
+        # quit program
+        self.toolbar_dict['exit'] = QAction(
+            qta.icon('mdi.exit-run'),
+            '&Exit',
+            self
+        )
+        self.toolbar_dict['exit'].setStatusTip('Exit the program')
+        self.toolbar_dict['exit'].triggered.connect(self._quit)
+        self.toolbar_dict['main'].addAction(self.toolbar_dict['exit'])
+        
         # status bar
         widget_dict['statusbar'] = QStatusBar(self)
         self.setStatusBar(widget_dict['statusbar'])
@@ -257,9 +260,63 @@ class Frontend(QMainWindow):
             3000
         ) 
         
-        # creates a title and adds it to the window's layout
-        widget_dict['title_text'] = QLabel('<h1>Database Manager</h1>')
-        self.layout_current.addWidget(widget_dict['title_text'], 0, 0)
+        # vbox to hold the accounts list
+        widget_dict['account_vbox_widget'] = QWidget()
+        widget_dict['account_vbox_layout'] = QVBoxLayout()
+
+        # list of widgets for each account
+        widget_dict['account_hboxes'] = list()
+
+        # only show all accounts to admins
+        if self.BackendObj.active_user['admin']:
+            # all accounts
+            users_to_show = self.BackendObj.usrcreds
+        else:
+            # only their account
+            users_to_show = [self.BackendObj.active_user]
+
+        for account in users_to_show:
+            widget_dict['account_hboxes'].append(
+                {
+                    'widget': QWidget(),
+                    'layout': QHBoxLayout()
+                }
+            )
+
+            # username
+            widget_dict['account_hboxes'][-1]['usr'] = QLabel(
+                account['usr']
+            )
+            widget_dict['account_hboxes'][-1]['layout'].addWidget(
+                widget_dict['account_hboxes'][-1]['usr']
+            )
+
+            # button to open the management page for that user
+            widget_dict['account_hboxes'][-1]['usr_view'] = QPushButton(
+                'View'
+            )
+            widget_dict['account_hboxes'][-1]['layout'].addWidget(
+                widget_dict['account_hboxes'][-1]['usr_view']
+            )
+
+            # button to open the management page for that user
+            widget_dict['account_hboxes'][-1]['usr_manage'] = QPushButton(
+                'Manage'
+            )
+            widget_dict['account_hboxes'][-1]['layout'].addWidget(
+                widget_dict['account_hboxes'][-1]['usr_manage']
+            )
+
+            # set hbox layout
+            widget_dict['account_hboxes'][-1]['widget'].setLayout(
+                widget_dict['account_hboxes'][-1]['layout']
+            )
+
+            # add the hbox to the layout, uses position len()-1
+            self.layout_current.addWidget(
+                widget_dict['account_hboxes'][-1]['widget'],
+                len(widget_dict['account_hboxes']) - 1, 0
+            )
 
         # set the layout
         self.layout_widget.setLayout(self.layout_current)

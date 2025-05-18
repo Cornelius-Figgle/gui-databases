@@ -6,6 +6,9 @@
 
 - [x] Credential hashing
 - [ ] User management
+  - [ ] New user
+- [ ] Logout
+- [ ] Database instead of JSON
 
 ## Assignment requirements
 

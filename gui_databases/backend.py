@@ -50,7 +50,8 @@ class Backend:
                     {
                         'usr': 'admin',
                         'passwd': sha256('admin'.encode()).hexdigest(),
-                        'name': 'Default Admin'
+                        'name': 'Default Admin',
+                        'admin': True
                     }
                 ]
 
@@ -68,15 +69,15 @@ class Backend:
         Checks whether or not the supplied credentials are valid.
         '''
 
-        for user in self.usrcreds:
+        for account in self.usrcreds:
             # check if credentials are valid
-            if user['usr'] == creds['usr']:
+            if account['usr'] == creds['usr']:
                 # check if password is valid for that username
-                if user['passwd'] == creds['passwd']:
+                if account['passwd'] == creds['passwd']:
                     # login successful, so display data entry screen
                     print(f'Login as user `{creds["usr"]}` successful!')
-                    self.active_user = user
-                    self.FrontendObj.data_entry()
+                    self.active_user = account
+                    self.FrontendObj.main_menu()
                     
                     break
                 else:
