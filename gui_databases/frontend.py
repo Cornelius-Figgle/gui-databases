@@ -254,9 +254,15 @@ class Frontend(QMainWindow):
         # status bar
         widget_dict['statusbar'] = QStatusBar(self)
         self.setStatusBar(widget_dict['statusbar'])
+
+        query_text = f'''
+            SELECT username
+            FROM accountsTbl
+            WHERE id = {self.BackendObj.active_user}
+        '''
         widget_dict['statusbar'].showMessage(
-            'Successfully logged in as '
-                +f'"{self.BackendObj.active_user["usr"]}"',
+            'Successfully logged in as "'
+                +self.BackendObj.sql_query(query_text)[0][0]+'"',
             3000
         ) 
         
@@ -268,12 +274,26 @@ class Frontend(QMainWindow):
         widget_dict['account_hboxes'] = list()
 
         # only show all accounts to admins
-        if self.BackendObj.active_user['admin']:
+        query_text = f'''
+            SELECT admin
+            FROM accountsTbl
+            WHERE id = {self.BackendObj.active_user}
+        '''
+        if self.BackendObj.sql_query(query_text)[0]:
             # all accounts
-            users_to_show = self.BackendObj.usrcreds
+            query_text = '''
+                SELECT username
+                FROM accountsTbl
+            '''
+            users_to_show = self.BackendObj.sql_query(query_text)
         else:
             # only their account
-            users_to_show = [self.BackendObj.active_user]
+            query_text = f'''
+                SELECT username
+                FROM accountsTbl
+                WHERE id = {self.BackendObj.active_user}
+            '''
+            users_to_show = self.BackendObj.sql_query(query_text)
 
         for account in users_to_show:
             widget_dict['account_hboxes'].append(
@@ -284,9 +304,7 @@ class Frontend(QMainWindow):
             )
 
             # username
-            widget_dict['account_hboxes'][-1]['usr'] = QLabel(
-                account['usr']
-            )
+            widget_dict['account_hboxes'][-1]['usr'] = QLabel(account[0])
             widget_dict['account_hboxes'][-1]['layout'].addWidget(
                 widget_dict['account_hboxes'][-1]['usr']
             )

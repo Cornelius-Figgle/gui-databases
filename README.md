@@ -43,6 +43,7 @@ poetry run python gui_databases/frontend.py
 
 - [qtawesome](https://qtawesome.readthedocs.io/en/latest/index.html)
 - [PyQt6](https://www.riverbankcomputing.com/software/pyqt/)
+- [MySQL Connector](https://dev.mysql.com/doc/connector-python/en/)
 
 ## Sources Used
 
